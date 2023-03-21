@@ -4,8 +4,7 @@ public class Conta {
     private Long id;
     private String user, email, senha;
 
-    public Conta(Long id, String user, String email, String senha) {
-        this.id = id;
+    public Conta(String user, String email, String senha) {
         this.user = user;
         this.email = email;
         this.senha = senha;

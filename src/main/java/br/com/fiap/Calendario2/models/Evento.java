@@ -11,8 +11,7 @@ public class Evento {
     private String lembrete;
     private String user;
 
-    public Evento(Long id,String nome, String data, String horario, String lembrete, String user) {
-        this.id= id;
+    public Evento(String nome, String data, String horario, String lembrete, String user) {
         this.nome = nome;
         this.data = data;
         this.horario = horario;

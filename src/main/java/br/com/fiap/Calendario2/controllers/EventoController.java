@@ -90,4 +90,12 @@ public class EventoController {
     }
 
 
+    // atividade do system model 
+    
+    @GetMapping("/api/eventos")
+    public Evento showSystemModel(){
+        return new Evento("Médico", "15/03/2023", "17:30", "1 dia antes", "FernandoCesxr");
+    }
+
+
 }

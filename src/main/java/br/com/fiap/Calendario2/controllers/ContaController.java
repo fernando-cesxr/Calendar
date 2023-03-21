@@ -89,4 +89,13 @@ public class ContaController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+
+    // atividade do system model 
+
+    @GetMapping("/api/contas")
+    public Conta showSystemModel(){
+        return new Conta("FernandoCesxr", "rm95628@fiap.com.br", "12356abc");
+    }
+
 }
