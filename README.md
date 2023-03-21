@@ -1,6 +1,6 @@
 # Calendar
 
-Uma API para controle de rotina do dia a dia 
+Uma API para controle de rotina do dia a dia.
 
 ### Endpoints
 
