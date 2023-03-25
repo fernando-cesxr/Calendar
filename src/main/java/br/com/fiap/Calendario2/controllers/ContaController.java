@@ -91,11 +91,4 @@ public class ContaController {
 
 
 
-    // atividade do system model 
-
-    @GetMapping("/api/contas")
-    public Conta showSystemModel(){
-        return new Conta("FernandoCesxr", "rm95628@fiap.com.br", "12356abc");
-    }
-
 }

@@ -1,12 +1,12 @@
 package br.com.fiap.Calendario2.controllers;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.catalina.startup.ClassLoaderFactory.RepositoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,87 +15,86 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Calendario2.models.Evento;
+import br.com.fiap.Calendario2.repository.EventoRepository;
 
 @RestController
+@RequestMapping("/api/evento")
 public class EventoController {
 
 
     Logger log = LoggerFactory.getLogger(EventoController.class);
 
-    List<Evento> eventos = new ArrayList<>();
+    @Autowired
+    EventoRepository repository;
 
-    @GetMapping("api/evento")
+    @GetMapping
     public List<Evento> index(){
-        return eventos;
+        return repository.findAll();
     }
 
     // método criado para cadastrar um evento
 
-    @PostMapping("api/evento")
-    public void create(@RequestBody Evento evento){
+    @PostMapping
+    public ResponseEntity<Evento> create(@RequestBody Evento evento){
         log.info("Cadastrando evento" + evento);
-        evento.setId(eventos.size() + 1l);
-        eventos.add((evento));
+        repository.save(evento);
+        return ResponseEntity.status(HttpStatus.CREATED).body(evento);
     }
 
     // método criado para detalhar um evento específico
 
-    @GetMapping("api/evento/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<Evento> show(@PathVariable long id){
         log.info("detalhando evento" + id);
 
-        var eventoEncontrado = eventos.stream().filter(e -> e.getId().equals(id)).findFirst();
-
+        var eventoEncontrado = repository.findById(id);
         if(eventoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(eventoEncontrado.get());
 
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<Evento> delete(@PathVariable long id){
+        log.info("atualizando evento" + id);
+
+        var eventoEncontrado = repository.findById(id);
+
+        if(eventoEncontrado.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        repository.delete(eventoEncontrado.get());
+
+        return ResponseEntity.noContent().build();
+    }
+
+
     // metodo para atualizar um evento
-    @PutMapping("api/evento/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<Evento> update(@PathVariable long id, @RequestBody Evento evento){
         log.info("atualizando evento" + id);
 
-        var eventoEncontrado = eventos.stream().filter(e -> e.getId().equals(id)).findFirst();
+        var eventoEncontrado = repository.findById(id);
 
         if(eventoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
 
-        eventos.remove(eventoEncontrado.get());
         evento.setId(id);
-        eventos.add(evento);
+        repository.save(evento);
 
         return ResponseEntity.ok(evento);
     }
 
-    @DeleteMapping("api/evento/{id}")
-    public ResponseEntity<Evento> delete(@PathVariable long id){
-        log.info("atualizando evento" + id);
-
-        var eventoEncontrado = eventos.stream().filter(e -> e.getId().equals(id)).findFirst();
-
-        if(eventoEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        eventos.remove(eventoEncontrado.get());
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-
-    // atividade do system model 
     
-    @GetMapping("/api/eventos")
-    public Evento showSystemModel(){
-        return new Evento("Médico", "15/03/2023", "17:30", "1 dia antes", "FernandoCesxr");
-    }
+
+
 
 
 }

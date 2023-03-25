@@ -1,22 +1,38 @@
 package br.com.fiap.Calendario2.models;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
+
+@Entity
 public class Evento {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
     private String data;
     private String horario;
     private String lembrete;
-    private String user;
+    private String usuario;
 
-    public Evento(String nome, String data, String horario, String lembrete, String user) {
+    protected Evento(){}
+
+    public Evento(String nome, String data, String horario, String lembrete, String usuario) {
         this.nome = nome;
         this.data = data;
         this.horario = horario;
         this.lembrete = lembrete;
-        this.user = user;
+        this.usuario = usuario;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -43,24 +59,18 @@ public class Evento {
     public void setLembrete(String lembrete) {
         this.lembrete = lembrete;
     }
-    public String getUser() {
-        return user;
+    public String getUsuario() {
+        return usuario;
     }
-    public void setUser(String user) {
-        this.user = user;
-    }
-    public Long getId() {
-        return id;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Override
     public String toString() {
-        return "Evento [nome=" + nome + ", data=" + data + ", horario=" + horario + ", lembrete=" + lembrete + ", user="
-                + user + "]";
+        return "Evento [nome=" + nome + ", data=" + data + ", horario=" + horario + ", lembrete=" + lembrete + ", usuario="
+                + usuario + "]";
     }
 
 
