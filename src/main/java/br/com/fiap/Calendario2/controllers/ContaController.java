@@ -45,6 +45,7 @@ public class ContaController {
     }
 
 
+    // metodo para detalhar uma conta
     
     @GetMapping("{id}")
     public ResponseEntity<Conta> show(@PathVariable long id){
@@ -76,7 +77,7 @@ public class ContaController {
     }
 
 
-    // metodo para atualizar uma conta
+    // metodo para deletar uma conta
     @DeleteMapping("{id}")
     public ResponseEntity<Conta> delete(@PathVariable long id){
         log.info("deletando conta" + id);
