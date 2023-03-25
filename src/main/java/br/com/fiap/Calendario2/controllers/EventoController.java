@@ -3,7 +3,6 @@ package br.com.fiap.Calendario2.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.catalina.startup.ClassLoaderFactory.RepositoryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +58,23 @@ public class EventoController {
 
     }
 
+        // metodo para atualizar um evento
+        @PutMapping("{id}")
+        public ResponseEntity<Evento> update(@PathVariable long id, @RequestBody Evento evento){
+            log.info("atualizando evento" + id);
+    
+            var eventoEncontrado = repository.findById(id);
+    
+            if(eventoEncontrado.isEmpty()){
+                return ResponseEntity.notFound().build();
+            }
+    
+            evento.setId(id);
+            repository.save(evento);
+    
+            return ResponseEntity.ok(evento);
+        }
+
     @DeleteMapping("{id}")
     public ResponseEntity<Evento> delete(@PathVariable long id){
         log.info("atualizando evento" + id);
@@ -75,22 +91,7 @@ public class EventoController {
     }
 
 
-    // metodo para atualizar um evento
-    @PutMapping("{id}")
-    public ResponseEntity<Evento> update(@PathVariable long id, @RequestBody Evento evento){
-        log.info("atualizando evento" + id);
 
-        var eventoEncontrado = repository.findById(id);
-
-        if(eventoEncontrado.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-
-        evento.setId(id);
-        repository.save(evento);
-
-        return ResponseEntity.ok(evento);
-    }
 
     
 

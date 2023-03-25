@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,77 +15,79 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Calendario2.models.Conta;
+import br.com.fiap.Calendario2.repository.ContaRepository;
 
 @RestController
+@RequestMapping("/api/conta")
 public class ContaController {
     
 
     Logger log = LoggerFactory.getLogger(ContaController.class);
 
-    List<Conta> contas = new ArrayList<>();
+    @Autowired
+    ContaRepository repository;
 
-    @GetMapping("api/conta")
+    @GetMapping
     public List<Conta> index(){
-        return contas;
+        return repository.findAll();
     }
 
     // Método para cadastrar conta 
-    @PostMapping("api/conta")
-    public void create(@RequestBody Conta conta){
+    @PostMapping
+    public ResponseEntity<Conta> create(@RequestBody Conta conta){
         log.info("Cadastrando conta" + conta);
-        conta.setId(contas.size() + 1l);
-        contas.add((conta));
+        repository.save(conta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(conta);
     }
 
 
     
-    @GetMapping("api/conta/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<Conta> show(@PathVariable long id){
         log.info("detalhando conta" + id);
 
-        var contaEncontrado = contas.stream().filter(e -> e.getId().equals(id)).findFirst();
+        var contaEncontrado = repository.findById(id);
 
         if(contaEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(contaEncontrado.get());
 
     }
 
     // metodo para atualizar uma conta
-    @PutMapping("api/conta/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody Conta conta){
         log.info("atualizando conta" + id);
 
-        var contaEncontrado = contas.stream().filter(e -> e.getId().equals(id)).findFirst();
+        var contaEncontrado = repository.findById(id);
 
         if(contaEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
-
-        contas.remove(contaEncontrado.get());
         conta.setId(id);
-        contas.add(conta);
+        repository.save(conta);
 
         return ResponseEntity.ok(conta);
     }
 
 
     // metodo para atualizar uma conta
-    @DeleteMapping("api/conta/{id}")
-    public ResponseEntity<Conta> update(@PathVariable long id){
-        log.info("atualizando conta" + id);
+    @DeleteMapping("{id}")
+    public ResponseEntity<Conta> delete(@PathVariable long id){
+        log.info("deletando conta" + id);
 
-        var contaEncontrado = contas.stream().filter(e -> e.getId().equals(id)).findFirst();
+        var contaEncontrado = repository.findById(id);
 
         if(contaEncontrado.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        contas.remove(contaEncontrado.get());
+        repository.delete(contaEncontrado.get());   
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

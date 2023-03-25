@@ -1,11 +1,21 @@
 package br.com.fiap.Calendario2.models;
 
-public class Conta {
-    private Long id;
-    private String user, email, senha;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-    public Conta(String user, String email, String senha) {
-        this.user = user;
+@Entity
+public class Conta {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String usuario, email, senha;
+
+    protected Conta(){}
+
+    public Conta(String usuario, String email, String senha) {
+        this.usuario = usuario;
         this.email = email;
         this.senha = senha;
     }
@@ -18,12 +28,12 @@ public class Conta {
     }
     
 
-    public String getUser() {
-        return user;
+    public String getUsuario() {
+        return usuario;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
     public String getEmail() {
@@ -43,7 +53,7 @@ public class Conta {
     }
     @Override
     public String toString() {
-        return "Conta [user=" + user + ", email=" + email + ", senha=" + senha + "]";
+        return "Conta [usuario=" + usuario + ", email=" + email + ", senha=" + senha + "]";
     }
 
     
