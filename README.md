@@ -24,6 +24,7 @@ Uma API para controle de rotina do dia a dia.
 |Campo|tipo|Obrigatório|descrição
 |------ |------|:-----------: |---------
 |Nome|text|sim|Nome do evento para poder indentificar.
+|Data|text|sim|Data em que irá acontecer o evento.
 |Horário| time | sim | Horário em que vai acontecer o evento.
 |Lembrete| text | não | Mandar uma notificação de quando irá acontecer um determinado evento.
 |usuário| text | sim | usuário em que vai ficar salvo o evento.
