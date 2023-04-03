@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
 import br.com.fiap.Calendario2.models.Conta;
+import br.com.fiap.Calendario2.models.RestValidationError;  
 import br.com.fiap.Calendario2.repository.ContaRepository;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/conta")
@@ -38,10 +41,10 @@ public class ContaController {
 
     // Método para cadastrar conta 
     @PostMapping
-    public ResponseEntity<Conta> create(@RequestBody Conta conta){
+    public ResponseEntity<Object> create(@RequestBody @Valid Conta conta){
         log.info("Cadastrando conta" + conta);
         repository.save(conta);
-        return ResponseEntity.status(HttpStatus.CREATED).body(conta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(conta);   
     }
 
 
@@ -62,14 +65,11 @@ public class ContaController {
 
     // metodo para atualizar uma conta
     @PutMapping("{id}")
-    public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody Conta conta){
+    public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody @Valid Conta conta){
         log.info("atualizando conta" + id);
 
-        var contaEncontrado = repository.findById(id);
+        repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Despesa não encontrado"));
 
-        if(contaEncontrado.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
         conta.setId(id);
         repository.save(conta);
 
@@ -82,13 +82,11 @@ public class ContaController {
     public ResponseEntity<Conta> delete(@PathVariable long id){
         log.info("deletando conta" + id);
 
-        var contaEncontrado = repository.findById(id);
+        var contaEncontrado = repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Despesa não encontrado"));
 
-        if(contaEncontrado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
 
-        repository.delete(contaEncontrado.get());   
+
+        repository.delete(contaEncontrado);   
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
