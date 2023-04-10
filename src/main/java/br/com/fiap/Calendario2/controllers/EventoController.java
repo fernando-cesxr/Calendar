@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
 import br.com.fiap.Calendario2.models.Evento;
 import br.com.fiap.Calendario2.models.RestValidationError;
+import br.com.fiap.Calendario2.repository.ContaRepository;
 import br.com.fiap.Calendario2.repository.EventoRepository;
 import jakarta.validation.Valid;
 
@@ -31,11 +32,14 @@ public class EventoController {
     Logger log = LoggerFactory.getLogger(EventoController.class);
 
     @Autowired
-    EventoRepository repository;
+    EventoRepository eventorepository;
+
+    @Autowired
+    ContaRepository contaRepository;
 
     @GetMapping
     public List<Evento> index(){
-        return repository.findAll();
+        return eventorepository.findAll();
     }
 
     // método criado para cadastrar um evento
@@ -43,7 +47,8 @@ public class EventoController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Valid Evento evento ){
         log.info("Cadastrando evento" + evento);
-        repository.save(evento);
+        eventorepository.save(evento);
+        evento.setConta(contaRepository.findById(evento.getConta().getId()).get());
         return ResponseEntity.status(HttpStatus.CREATED).body(evento);
     }
 
@@ -53,42 +58,37 @@ public class EventoController {
     public ResponseEntity<Evento> show(@PathVariable long id){
         log.info("detalhando evento" + id);
 
-        var evento = repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Evento não encontrado"));
+        var evento = getEvento(id);
 
         return ResponseEntity.ok(evento);
 
     }
 
+
+
     // metodo para atualizar um evento
     @PutMapping("{id}")
     public ResponseEntity<Evento> update(@PathVariable long id, @RequestBody @Valid Evento evento){
         log.info("atualizando evento" + id);
-
-        repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Evento não encontrado"));
-
-
+        getEvento(id);
         evento.setId(id);
-        repository.save(evento);
-
+        eventorepository.save(evento);
         return ResponseEntity.ok(evento);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Evento> delete(@PathVariable long id){
         log.info("atualizando evento" + id);
-
-        var eventoEncontrado = repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Evento não encontrado"));
-
-
-        repository.delete(eventoEncontrado);
-
+        eventorepository.delete( getEvento(id));
         return ResponseEntity.noContent().build();
     }
 
 
 
 
-    
+    private Evento getEvento(long id) {
+        return eventorepository.findById(id).orElseThrow( ()-> new RestNotFoundException("Evento não encontrado"));
+    }
 
 
 

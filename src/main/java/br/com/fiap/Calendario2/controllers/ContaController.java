@@ -47,29 +47,18 @@ public class ContaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(conta);   
     }
 
-
     // metodo para detalhar uma conta
-    
     @GetMapping("{id}")
     public ResponseEntity<Conta> show(@PathVariable long id){
         log.info("detalhando conta" + id);
-
-        var contaEncontrado = repository.findById(id);
-
-        if(contaEncontrado.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(contaEncontrado.get());
-
+        return ResponseEntity.ok(getConta(id));
     }
 
     // metodo para atualizar uma conta
     @PutMapping("{id}")
     public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody @Valid Conta conta){
         log.info("atualizando conta" + id);
-
-        repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Despesa não encontrado"));
-
+        getConta(id);
         conta.setId(id);
         repository.save(conta);
 
@@ -81,15 +70,17 @@ public class ContaController {
     @DeleteMapping("{id}")
     public ResponseEntity<Conta> delete(@PathVariable long id){
         log.info("deletando conta" + id);
-
-        var contaEncontrado = repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Despesa não encontrado"));
-
-
-
-        repository.delete(contaEncontrado);   
-
+        var conta = getConta(id);    
+        conta.setAtiva(false);
+        repository.save(conta);   
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
+    private Conta getConta(long id) {
+        return repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Conta não encontrada"));
+    }
+
 
 
 
