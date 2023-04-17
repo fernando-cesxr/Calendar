@@ -7,6 +7,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
@@ -23,27 +27,30 @@ import br.com.fiap.Calendario2.models.Conta;
 import br.com.fiap.Calendario2.models.RestValidationError;  
 import br.com.fiap.Calendario2.repository.ContaRepository;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/conta")
+@Slf4j
 public class ContaController {
     
 
     Logger log = LoggerFactory.getLogger(ContaController.class);
 
     @Autowired
-    ContaRepository repository;
+    ContaRepository contaRepository;
 
     @GetMapping
-    public List<Conta> index(){
-        return repository.findAll();
+    public Page<Conta> index(@RequestParam(required = false) String busca,@PageableDefault(size = 5) Pageable pageable){
+        if(busca == null) return contaRepository.findAll(pageable);
+        return contaRepository.findByUsuarioContaining(busca, pageable);
     }
 
     // Método para cadastrar conta 
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Valid Conta conta){
         log.info("Cadastrando conta" + conta);
-        repository.save(conta);
+        contaRepository.save(conta);
         return ResponseEntity.status(HttpStatus.CREATED).body(conta);   
     }
 
@@ -60,7 +67,7 @@ public class ContaController {
         log.info("atualizando conta" + id);
         getConta(id);
         conta.setId(id);
-        repository.save(conta);
+        contaRepository.save(conta);
 
         return ResponseEntity.ok(conta);
     }
@@ -72,13 +79,13 @@ public class ContaController {
         log.info("deletando conta" + id);
         var conta = getConta(id);    
         conta.setAtiva(false);
-        repository.save(conta);   
+        contaRepository.save(conta);   
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
     private Conta getConta(long id) {
-        return repository.findById(id).orElseThrow( ()-> new RestNotFoundException("Conta não encontrada"));
+        return contaRepository.findById(id).orElseThrow( ()-> new RestNotFoundException("Conta não encontrada"));
     }
 
 
