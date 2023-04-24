@@ -3,7 +3,12 @@ package br.com.fiap.Calendario2.models;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import br.com.fiap.Calendario2.controllers.ContaController;
+import br.com.fiap.Calendario2.controllers.EventoController;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,6 +47,15 @@ public class Evento {
     @ManyToOne
     private Conta conta;
 
-
+    public EntityModel<Evento> toEntityModel(){
+        
+        return EntityModel.of(
+            this,
+            linkTo(methodOn(EventoController.class).show(id)).withSelfRel(), 
+            linkTo(methodOn(EventoController.class).delete(id)).withRel("delete"), 
+            linkTo(methodOn(EventoController.class).index(null, Pageable.unpaged())).withRel("all"), 
+            linkTo(methodOn(ContaController.class).show(this.getConta().getId())).withRel("conta")         
+        );
+    }
 
 }

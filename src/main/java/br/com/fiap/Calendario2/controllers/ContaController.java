@@ -30,7 +30,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/conta")
+@RequestMapping("/api/contas")
 @Slf4j
 public class ContaController {
     

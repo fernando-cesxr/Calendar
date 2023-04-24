@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +32,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/evento")
+@RequestMapping("/api/eventos")
 @Slf4j
 public class EventoController {
 
@@ -41,17 +45,26 @@ public class EventoController {
     @Autowired
     ContaRepository contaRepository;
 
+    @Autowired
+    PagedResourcesAssembler<Object> assembler;
+
     @GetMapping
-    public Page<Evento> index(@RequestParam(required = false) String busca,@PageableDefault(size = 5) Pageable pageable){
-        if(busca == null) return eventorepository.findAll(pageable);
-        return eventorepository.findByNomeContaining(busca, pageable);
+    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca,@PageableDefault(size = 5) Pageable pageable){
+        Page<Evento> eventos;
+        eventos = (busca == null) ?
+            eventorepository.findAll(pageable): 
+            eventorepository.findByNomeContaining(busca, pageable);
+            
+        return assembler.toModel(eventos.map(Evento::toEntityModel)); 
+        
+
     }
 
     // método criado para cadastrar um evento
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody @Valid Evento evento ){
-        log.info("Cadastrando evento" + evento);
+        log.info("Cadastrando evento " + evento);
         eventorepository.save(evento);
         evento.setConta(contaRepository.findById(evento.getConta().getId()).get());
         return ResponseEntity.status(HttpStatus.CREATED).body(evento);
@@ -60,12 +73,12 @@ public class EventoController {
     // método criado para detalhar um evento específico
 
     @GetMapping("{id}")
-    public ResponseEntity<Evento> show(@PathVariable long id){
-        log.info("detalhando evento" + id);
+    public EntityModel<Evento> show(@PathVariable long id){
+        log.info("detalhando evento " + id);
 
-        var evento = getEvento(id);
-
-        return ResponseEntity.ok(evento);
+        var evento =  eventorepository.findById(id).orElseThrow(()-> new RestNotFoundException("evento não encontrado"));
+           
+        return evento.toEntityModel();
 
     }
 
@@ -73,17 +86,17 @@ public class EventoController {
 
     // metodo para atualizar um evento
     @PutMapping("{id}")
-    public ResponseEntity<Evento> update(@PathVariable long id, @RequestBody @Valid Evento evento){
-        log.info("atualizando evento" + id);
+    public EntityModel<Evento> update(@PathVariable long id, @RequestBody @Valid Evento evento){
+        log.info("atualizando evento " + id);
         getEvento(id);
         evento.setId(id);
         eventorepository.save(evento);
-        return ResponseEntity.ok(evento);
+        return evento.toEntityModel();
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Evento> delete(@PathVariable long id){
-        log.info("atualizando evento" + id);
+        log.info("atualizando evento " + id);
         eventorepository.delete( getEvento(id));
         return ResponseEntity.noContent().build();
     }
