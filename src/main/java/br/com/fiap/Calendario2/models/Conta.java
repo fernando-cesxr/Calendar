@@ -1,9 +1,14 @@
 package br.com.fiap.Calendario2.models;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;   
+import br.com.fiap.Calendario2.controllers.ContaController;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,5 +42,15 @@ public class Conta {
 
     @JsonIgnore
     private boolean ativa = true; 
+
+    public EntityModel<Conta> toEntityModel(){
+        
+        return EntityModel.of(
+            this,
+            linkTo(methodOn(ContaController.class).show(id)).withSelfRel(), 
+            linkTo(methodOn(ContaController.class).delete(id)).withRel("delete"), 
+            linkTo(methodOn(ContaController.class).index(null, Pageable.unpaged())).withRel("all") 
+        );
+    }
 
 }
