@@ -27,7 +27,7 @@ public class DatabaseSeeder  implements CommandLineRunner{
     public void run(String... args) throws Exception {
         Conta c1 = new Conta(1L, "FernandoCesxr", "rm95628@fiap.com.br", "vF#zP9@qX$mT", true);
         Conta c2 = new Conta(2L, "Fernando", "fernando@gmail.com", "nX@3ugG3I*", true);
-        Conta c3 = new Conta(3L, "Cesar", "cesar@gmail.com", "ZyCbEk@n", true);
+        Conta c3 = new Conta(3L, "Cesar", "cesar@gmail.com", "  ", true);
         contaRepository.saveAll(List.of(c1,c2,c3));
 
         eventoRepository.saveAll(List.of(
