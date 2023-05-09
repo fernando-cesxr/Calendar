@@ -44,7 +44,7 @@ public class Conta implements UserDetails{
     private String email; 
 
     @JsonProperty(access = Access.WRITE_ONLY)
-    @NotBlank @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$", message = "a senha deve conter no mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula e 1 dos caracteres especiais $, *, &, @ ou #")
+    @NotBlank @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$", message = "a senha deve conter no mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula e 1 dos caracteres especiais $, *, &, @ ou #") 
     private String senha;
 
     @JsonIgnore
@@ -62,7 +62,7 @@ public class Conta implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(()-> "ROLE_USUARIO");
+        return List.of(()-> "ROLE_CONTA");
     }
 
     @Override

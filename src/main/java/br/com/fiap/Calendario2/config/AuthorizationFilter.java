@@ -28,8 +28,8 @@ public class AuthorizationFilter  extends OncePerRequestFilter{
             throws ServletException, IOException {
                 var token = getTokenFromHeader(request);
                 if (token != null){
-                    var usuario = service.validate(token);
-                    Authentication auth = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                    var conta = service.validate(token);
+                    Authentication auth = new UsernamePasswordAuthenticationToken(conta, null, conta.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
 
