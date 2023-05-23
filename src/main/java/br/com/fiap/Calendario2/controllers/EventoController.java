@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,17 +29,24 @@ import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
 import br.com.fiap.Calendario2.models.Evento;
 import br.com.fiap.Calendario2.repository.ContaRepository;
 import br.com.fiap.Calendario2.repository.EventoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/eventos")
 @Slf4j
+@SecurityRequirement(name = "bearer-key")
+@Tag(name = "Evento")
 public class EventoController {
 
 
     Logger log = LoggerFactory.getLogger(EventoController.class);
-
+    
     @Autowired
     EventoRepository eventorepository;
 
@@ -49,7 +57,7 @@ public class EventoController {
     PagedResourcesAssembler<Object> assembler;
 
     @GetMapping
-    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca,@PageableDefault(size = 5) Pageable pageable){
+    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca, @ParameterObject @PageableDefault(size = 5) Pageable pageable){
         Page<Evento> eventos;
         eventos = (busca == null) ?
             eventorepository.findAll(pageable): 
@@ -63,8 +71,12 @@ public class EventoController {
     // método criado para cadastrar um evento
 
     @PostMapping
+    @ApiResponses ({
+        @ApiResponse(responseCode = "201", description = "evento cadastrada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Os campos enviados são inválidos")
+    })
     public ResponseEntity<Object> create(@RequestBody @Valid Evento evento ){
-        log.info("Cadastrando evento " + evento);
+        log.info("Cadastrando evento " + evento);   
         eventorepository.save(evento);
         evento.setConta(contaRepository.findById(evento.getConta().getId()).get());
         return ResponseEntity.status(HttpStatus.CREATED).body(evento);
@@ -73,6 +85,11 @@ public class EventoController {
     // método criado para detalhar um evento específico
 
     @GetMapping("{id}")
+    @Operation(
+        summary = "Detalhar evento",
+        description = "Endpoint que recebe um id e retorna os dados da evento. O id deve ser ..."
+
+    )
     public EntityModel<Evento> show(@PathVariable long id){
         log.info("detalhando evento " + id);
 
@@ -86,6 +103,10 @@ public class EventoController {
 
     // metodo para atualizar um evento
     @PutMapping("{id}")
+    @ApiResponses ({
+        @ApiResponse(responseCode = "201", description = "dados atualizados com sucesso"),
+        @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
+    })
     public EntityModel<Evento> update(@PathVariable long id, @RequestBody @Valid Evento evento){
         log.info("atualizando evento " + id);
         getEvento(id);
@@ -95,6 +116,10 @@ public class EventoController {
     }
 
     @DeleteMapping("{id}")
+    @ApiResponses ({
+        @ApiResponse(responseCode = "203", description = "dado apagado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
+    })
     public ResponseEntity<Evento> delete(@PathVariable long id){
         log.info("atualizando evento " + id);
         eventorepository.delete( getEvento(id));
