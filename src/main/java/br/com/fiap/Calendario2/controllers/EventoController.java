@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
+import br.com.fiap.Calendario2.models.Conta;
 import br.com.fiap.Calendario2.models.Evento;
 import br.com.fiap.Calendario2.repository.ContaRepository;
 import br.com.fiap.Calendario2.repository.EventoRepository;
@@ -56,17 +58,31 @@ public class EventoController {
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
-    @GetMapping
-    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca, @ParameterObject @PageableDefault(size = 5) Pageable pageable){
-        Page<Evento> eventos;
-        eventos = (busca == null) ?
-            eventorepository.findAll(pageable): 
-            eventorepository.findByNomeContaining(busca, pageable);
-            
-        return assembler.toModel(eventos.map(Evento::toEntityModel)); 
-        
+    // codigo de baixo retorna apenas 3 itens (não precisa tirar do database pra aparecer no web)
 
+    // @GetMapping
+    // public List<Evento> getEventos(@RequestParam(name = "page", defaultValue = "0") int page) {
+    //     int pageSize = 3; // Defina o tamanho da página como 3
+    //     PageRequest pageRequest = PageRequest.of(page, pageSize);
+    //     Page<Evento> eventoPage = eventorepository.findAll(pageRequest);
+    //     return eventoPage.getContent(); // Retorna a lista de eventos
+    // }
+
+    // já esse retorna todos, precisando tirar do databaseseeder para passar apenas 3
+    
+    @GetMapping
+    public List<Evento> index(){
+        return eventorepository.findAll();
     }
+
+    // @GetMapping
+    // public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca, @ParameterObject @PageableDefault(size = 5) Pageable pageable){
+    //     Page<Evento> eventos = (busca == null) ?
+    //         eventorepository.findAll(pageable): 
+    //         eventorepository.findByNomeContaining(busca, pageable);
+            
+    //     return assembler.toModel(eventos.map(Evento::toEntityModel)); 
+    // }
 
     // método criado para cadastrar um evento
 
