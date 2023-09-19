@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.fiap.Calendario2.exceptions.RestNotFoundException;
 import br.com.fiap.Calendario2.models.Conta;
 import br.com.fiap.Calendario2.models.Credencial;
-import br.com.fiap.Calendario2.models.RestValidationError;  
+import br.com.fiap.Calendario2.models.RestValidationError;
 import br.com.fiap.Calendario2.repository.ContaRepository;
 import br.com.fiap.Calendario2.service.TokenJwtService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 public class ContaController {
-    
 
     Logger log = LoggerFactory.getLogger(ContaController.class);
 
@@ -62,49 +61,46 @@ public class ContaController {
     @Autowired
     TokenJwtService tokenJwtService;
 
-
     @GetMapping("/api/contas")
-    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca, @ParameterObject @PageableDefault(size = 5) Pageable pageable){
+    public PagedModel<EntityModel<Object>> index(@RequestParam(required = false) String busca,
+            @ParameterObject @PageableDefault(size = 5) Pageable pageable) {
 
         Page<Conta> contas;
-        contas = (busca == null) ?
-            contaRepository.findAll(pageable): 
-            contaRepository.findByUsuarioContaining(busca, pageable);
-            
-        return assembler.toModel(contas.map(Conta::toEntityModel)); 
+        contas = (busca == null) ? contaRepository.findAll(pageable)
+                : contaRepository.findByUsuarioContaining(busca, pageable);
+
+        return assembler.toModel(contas.map(Conta::toEntityModel));
     }
 
-    // Método para cadastrar conta 
+    // Método para cadastrar conta
     @PostMapping("/api/registrar")
-    @ApiResponses ({
-        @ApiResponse(responseCode = "201", description = "conta cadastrada com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Os campos enviados são inválidos")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "conta cadastrada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Os campos enviados são inválidos")
     })
-    public ResponseEntity<Object> create(@RequestBody @Valid Conta conta){  
-        conta.setSenha(encoder.encode(conta.getSenha()));   
+    public ResponseEntity<Object> create(@RequestBody @Valid Conta conta) {
+        conta.setSenha(encoder.encode(conta.getSenha()));
         contaRepository.save(conta);
-        return ResponseEntity.status(HttpStatus.CREATED).body(conta);   
+        return ResponseEntity.status(HttpStatus.CREATED).body(conta);
     }
 
     // metodo para detalhar uma conta
     @GetMapping("/api/contas/{id}")
-    @Operation(
-        summary = "Detalhar evento",
-        description = "Endpoint que recebe um id e retorna os dados da evento. O id deve ser ..."
+    @Operation(summary = "Detalhar evento", description = "Endpoint que recebe um id e retorna os dados da evento. O id deve ser ..."
 
     )
-    public ResponseEntity<Conta> show(@PathVariable long id){
+    public ResponseEntity<Conta> show(@PathVariable long id) {
         log.info("detalhando conta" + id);
         return ResponseEntity.ok(getConta(id));
     }
 
     // metodo para atualizar uma conta
     @PutMapping("/api/contas/{id}")
-    @ApiResponses ({
-        @ApiResponse(responseCode = "201", description = "dados atualizados com sucesso"),
-        @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "dados atualizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
     })
-    public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody @Valid Conta conta){
+    public ResponseEntity<Conta> update(@PathVariable long id, @RequestBody @Valid Conta conta) {
         log.info("atualizando conta" + id);
         getConta(id);
         conta.setId(id);
@@ -114,30 +110,26 @@ public class ContaController {
     }
 
     @DeleteMapping("/api/contas/{id}")
-    @ApiResponses ({
-        @ApiResponse(responseCode = "203", description = "dado apagado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "203", description = "dado apagado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "não existe dado com o id informado")
     })
-    public ResponseEntity<Conta> delete(@PathVariable long id){
+    public ResponseEntity<Conta> delete(@PathVariable long id) {
         log.info("deletando conta" + id);
-        var conta = getConta(id);    
-        conta.setAtiva(false);
-        contaRepository.save(conta);   
+        getConta(id);
+        contaRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/api/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid Credencial credencial){
+    public ResponseEntity<Object> login(@RequestBody @Valid Credencial credencial) {
         manager.authenticate(credencial.toAuthentication());
         var token = tokenJwtService.generateToken(credencial);
         return ResponseEntity.ok(token);
     }
 
-    
-
     private Conta getConta(long id) {
-        return contaRepository.findById(id).orElseThrow( ()-> new RestNotFoundException("Conta não encontrada"));
+        return contaRepository.findById(id).orElseThrow(() -> new RestNotFoundException("Conta não encontrada"));
     }
-
 
 }

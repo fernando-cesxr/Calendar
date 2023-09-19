@@ -34,42 +34,43 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Conta implements UserDetails{
+public class Conta implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @NotBlank @Size(min = 3, max = 255)
-    private String usuario; 
+
+    @NotBlank
+    @Size(min = 3, max = 255)
+    private String usuario;
 
     @Email(message = "email inválido")
-    private String email; 
+    private String email;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
-    @NotBlank @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$", message = "a senha deve conter no mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula e 1 dos caracteres especiais $, *, &, @ ou #") 
+    // @JsonProperty(access = Access.WRITE_ONLY)
+    @NotBlank
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$", message = "a senha deve conter no mínimo 8 caracteres, 1 letra maiúscula, 1 minúscula e 1 dos caracteres especiais $, *, &, @ ou #")
     private String senha;
 
     @JsonIgnore
-    private boolean ativa = true; 
+    private boolean ativa = true;
 
-    public EntityModel<Conta> toEntityModel(){
-        
+    public EntityModel<Conta> toEntityModel() {
+
         return EntityModel.of(
-            this,
-            linkTo(methodOn(ContaController.class).show(id)).withSelfRel(), 
-            linkTo(methodOn(ContaController.class).delete(id)).withRel("delete"), 
-            linkTo(methodOn(ContaController.class).index(null, Pageable.unpaged())).withRel("all") 
-        );
+                this,
+                linkTo(methodOn(ContaController.class).show(id)).withSelfRel(),
+                linkTo(methodOn(ContaController.class).delete(id)).withRel("delete"),
+                linkTo(methodOn(ContaController.class).index(null, Pageable.unpaged())).withRel("all"));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(()-> "ROLE_CONTA");
+        return List.of(() -> "ROLE_CONTA");
     }
 
     @Override
     public String getPassword() {
-        return senha; 
+        return senha;
     }
 
     @Override
